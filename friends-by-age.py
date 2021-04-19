@@ -11,10 +11,10 @@ def parse_line(line):
     return (age, numFriends)
 
 
-lines = sc.textFile("file:///SparkCourse/fakefriends.csv")
+lines = sc.textFile("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/fakefriends.csv")
 rdd = lines.map(parse_line)
 totalsByAge = rdd.mapValues(lambda x: (x, 1)).reduceByKey(lambda x, y: (x[0] + y[0], x[1] + y[1]))
 averagesByAge = totalsByAge.mapValues(lambda x: x[0] / x[1])
-results = averagesByAge.collect()
+results = averagesByAge.sortByKey().collect()
 for result in results:
     print(result)
