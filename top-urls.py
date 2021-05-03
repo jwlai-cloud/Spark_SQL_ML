@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 import pyspark.sql.functions as func
 
 # Create a SparkSession (the config bit is only for Windows!)
-spark = SparkSession.builder.appName("StructuredStreaming").getOrCreate()
+spark = SparkSession.builder.config("spark.sql.warehouse.dir", "file:///C:/temp").appName("StructuredStreaming").getOrCreate()
 
 # Monitor the logs directory for new log data, and read in the raw lines as accessLines
 accessLines = spark.readStream.text("logs")

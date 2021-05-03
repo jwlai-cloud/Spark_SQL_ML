@@ -15,7 +15,7 @@ from pyspark.sql.functions import regexp_extract
 spark = SparkSession.builder.config("spark.sql.warehouse.dir", "file:///C:/temp").appName("StructuredStreaming").getOrCreate()
 
 # Monitor the logs directory for new log data, and read in the raw lines as accessLines
-accessLines = spark.readStream.text("logs")
+accessLines = spark.readStream.text("logs") # for development phase, we can start using spark.read.text
 
 # Parse out the common log format to a DataFrame
 contentSizeExp = r'\s(\d+)$'

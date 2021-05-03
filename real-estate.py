@@ -12,7 +12,7 @@ if __name__ == "__main__":
     
     # Load up data as dataframe
     data = spark.read.option("header", "true").option("inferSchema", "true")\
-        .csv("file:///SparkCourse/realestate.csv")
+        .csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/realestate.csv")
 
     assembler = VectorAssembler().setInputCols(["HouseAge", "DistanceToMRT", \
                                "NumberConvenienceStores"]).setOutputCol("features")
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     trainingDF = trainTest[0]
     testDF = trainTest[1]
 
-    # Now create our decision tree
+    # Now create our decision tree, need to point to the exact names for feature and label in assembled dataframe
     dtr = DecisionTreeRegressor().setFeaturesCol("features").setLabelCol("PriceOfUnitArea")
 
     # Train the model using our training data
