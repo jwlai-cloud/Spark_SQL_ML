@@ -7,7 +7,7 @@ import codecs
 def loadMovieNames():
     movieNames = {}
     # CHANGE THIS TO THE PATH TO YOUR u.ITEM FILE:
-    with codecs.open("E:/SparkCourse/ml-100k/u.ITEM", "r", encoding='ISO-8859-1', errors='ignore') as f:
+    with codecs.open("C:/Users/sdljw/PycharmProjects/Spark_SQL_ML/ml-100k/u.ITEM", "r", encoding='ISO-8859-1', errors='ignore') as f:
         for line in f:
             fields = line.split('|')
             movieNames[int(fields[0])] = fields[1]
@@ -25,7 +25,7 @@ moviesSchema = StructType([ \
 names = loadMovieNames()
     
 ratings = spark.read.option("sep", "\t").schema(moviesSchema) \
-    .csv("file:///SparkCourse/ml-100k/u.data")
+    .csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/ml-100k/u.data")
     
 print("Training recommendation model...")
 
@@ -37,6 +37,7 @@ model = als.fit(ratings)
 # Manually construct a dataframe of the user ID's we want recs for
 userID = int(sys.argv[1])
 userSchema = StructType([StructField("userID", IntegerType(), True)])
+# Trick to create DataFrame with one value in Spark, basically structuring as list of rows of list of columns
 users = spark.createDataFrame([[userID,]], userSchema)
 
 recommendations = model.recommendForUserSubset(users, 10).collect()
@@ -51,4 +52,4 @@ for userRecs in recommendations:
         movieName = names[movie]
         print(movieName + str(rating))
         
-
+spark.stop()

@@ -8,9 +8,10 @@ schema = StructType([ \
                      StructField("id", IntegerType(), True), \
                      StructField("name", StringType(), True)])
 
-names = spark.read.schema(schema).option("sep", " ").csv("file:///SparkCourse/Marvel-names.txt")
+names = spark.read.schema(schema).option("sep", " ").csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/Marvel-names.txt")
 
-lines = spark.read.text("file:///SparkCourse/Marvel-graph.txt")
+# When read in as text, only one column named "value"
+lines = spark.read.text("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/Marvel-graph.txt")
 
 # Small tweak vs. what's shown in the video: we trim each line of whitespace as that could
 # throw off the counts.
@@ -24,3 +25,4 @@ mostPopularName = names.filter(func.col("id") == mostPopular[0]).select("name").
 
 print(mostPopularName[0] + " is the most popular superhero with " + str(mostPopular[1]) + " co-appearances.")
 
+spark.stop()

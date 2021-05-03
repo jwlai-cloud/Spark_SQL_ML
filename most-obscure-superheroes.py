@@ -8,16 +8,17 @@ schema = StructType([ \
                      StructField("id", IntegerType(), True), \
                      StructField("name", StringType(), True)])
 
-names = spark.read.schema(schema).option("sep", " ").csv("file:///SparkCourse/Marvel-names.txt")
+names = spark.read.schema(schema).option("sep", " ").csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/Marvel-names.txt")
 
-lines = spark.read.text("file:///SparkCourse/Marvel-graph.txt")
+lines = spark.read.text("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/dataset/Marvel-graph.txt")
 
 # Small tweak vs. what's shown in the video: we trim whitespace from each line as this
 # could throw the counts off by one.
 connections = lines.withColumn("id", func.split(func.trim(func.col("value")), " ")[0]) \
     .withColumn("connections", func.size(func.split(func.trim(func.col("value")), " ")) - 1) \
     .groupBy("id").agg(func.sum("connections").alias("connections"))
-    
+
+# Use first() can take action to retrieve the value    
 minConnectionCount = connections.agg(func.min("connections")).first()[0]
 
 minConnections = connections.filter(func.col("connections") == minConnectionCount)
@@ -27,3 +28,5 @@ minConnectionsWithNames = minConnections.join(names, "id")
 print("The following characters have only " + str(minConnectionCount) + " connection(s):")
 
 minConnectionsWithNames.select("name").show()
+
+spark.stop()

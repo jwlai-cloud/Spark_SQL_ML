@@ -22,6 +22,7 @@ def computeCosineSimilarity(spark, data):
     # Calculate score and select only needed columns (movie1, movie2, score, numPairs)
     result = calculateSimilarity \
       .withColumn("score", \
+        # Use func.when().otherwise() as IF-THEN
         func.when(func.col("denominator") != 0, func.col("numerator") / func.col("denominator")) \
           .otherwise(0) \
       ).select("movie1", "movie2", "score", "numPairs")
@@ -35,8 +36,8 @@ def getMovieName(movieNames, movieId):
 
     return result[0]
 
-
-spark = SparkSession.builder.appName("MovieSimilarities").master("local[*]").getOrCreate()
+# In order to run faster for self-join, you can use more CPUs with .master("local[*]")
+spark = SparkSession.builder.appName("MovieSimilarities").getOrCreate()
 
 movieNamesSchema = StructType([ \
                                StructField("movieID", IntegerType(), True), \
@@ -56,13 +57,13 @@ movieNames = spark.read \
       .option("sep", "|") \
       .option("charset", "ISO-8859-1") \
       .schema(movieNamesSchema) \
-      .csv("file:///SparkCourse/ml-100k/u.item")
+      .csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/ml-100k/u.item")
 
 # Load up movie data as dataset
 movies = spark.read \
       .option("sep", "\t") \
       .schema(moviesSchema) \
-      .csv("file:///SparkCourse/ml-100k/u.data")
+      .csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/ml-100k/u.data")
 
 
 ratings = movies.select("userId", "movieId", "rating")
@@ -78,7 +79,7 @@ moviePairs = ratings.alias("ratings1") \
         func.col("ratings1.rating").alias("rating1"), \
         func.col("ratings2.rating").alias("rating2"))
 
-
+# Cache the result as regular usage
 moviePairSimilarities = computeCosineSimilarity(spark, moviePairs).cache()
 
 if (len(sys.argv) > 1):
@@ -93,7 +94,7 @@ if (len(sys.argv) > 1):
         ((func.col("movie1") == movieID) | (func.col("movie2") == movieID)) & \
           (func.col("score") > scoreThreshold) & (func.col("numPairs") > coOccurrenceThreshold))
 
-    # Sort by quality score.
+    # Sort by quality score. Use take to activate the transforms
     results = filteredResults.sort(func.col("score").desc()).take(10)
     
     print ("Top 10 similar movies for " + getMovieName(movieNames, movieID))
@@ -107,3 +108,4 @@ if (len(sys.argv) > 1):
         print(getMovieName(movieNames, similarMovieID) + "\tscore: " \
               + str(result.score) + "\tstrength: " + str(result.numPairs))
         
+spark.stop()

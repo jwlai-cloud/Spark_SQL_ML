@@ -11,7 +11,7 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("LinearRegression").getOrCreate()
 
     # Load up our data and convert it to the format MLLib expects.
-    inputLines = spark.sparkContext.textFile("regression.txt")
+    inputLines = spark.sparkContext.textFile("data/regression.txt")
     data = inputLines.map(lambda x: x.split(",")).map(lambda x: (float(x[0]), Vectors.dense(float(x[1]))))
 
     # Convert this RDD to a DataFrame
