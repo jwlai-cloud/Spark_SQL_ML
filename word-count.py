@@ -8,6 +8,5 @@ words = book.flatMap(lambda x: x.split())
 wordCounts = words.countByValue()
 
 for word, count in wordCounts.items():
-    cleanWord = word.encode('ascii', 'ignore')
-    if cleanWord:
-        print(cleanWord.decode() + " " + str(count))
+    if cleanWord := word.encode('ascii', 'ignore'):
+        print(f"{cleanWord.decode()} {str(count)}")

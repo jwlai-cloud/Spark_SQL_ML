@@ -19,15 +19,13 @@ def computeCosineSimilarity(spark, data):
         func.count(func.col("xy")).alias("numPairs")
       )
 
-    # Calculate score and select only needed columns (movie1, movie2, score, numPairs)
-    result = calculateSimilarity \
-      .withColumn("score", \
-        # Use func.when().otherwise() as IF-THEN
-        func.when(func.col("denominator") != 0, func.col("numerator") / func.col("denominator")) \
-          .otherwise(0) \
-      ).select("movie1", "movie2", "score", "numPairs")
-
-    return result
+    return calculateSimilarity.withColumn(
+        "score",  # Use func.when().otherwise() as IF-THEN
+        func.when(
+            func.col("denominator") != 0,
+            func.col("numerator") / func.col("denominator"),
+        ).otherwise(0),
+    ).select("movie1", "movie2", "score", "numPairs")
 
 # Get movie name by given movie id 
 def getMovieName(movieNames, movieId):
@@ -43,14 +41,14 @@ movieNamesSchema = StructType([ \
                                StructField("movieID", IntegerType(), True), \
                                StructField("movieTitle", StringType(), True) \
                                ])
-    
+
 moviesSchema = StructType([ \
                      StructField("userID", IntegerType(), True), \
                      StructField("movieID", IntegerType(), True), \
                      StructField("rating", IntegerType(), True), \
                      StructField("timestamp", LongType(), True)])
-    
-    
+
+
 # Create a broadcast dataset of movieID and movieTitle.
 # Apply ISO-885901 charset
 movieNames = spark.read \
@@ -96,16 +94,16 @@ if (len(sys.argv) > 1):
 
     # Sort by quality score. Use take to activate the transforms
     results = filteredResults.sort(func.col("score").desc()).take(10)
-    
-    print ("Top 10 similar movies for " + getMovieName(movieNames, movieID))
-    
+
+    print(f"Top 10 similar movies for {getMovieName(movieNames, movieID)}")
+
     for result in results:
         # Display the similarity result that isn't the movie we're looking at
         similarMovieID = result.movie1
         if (similarMovieID == movieID):
           similarMovieID = result.movie2
-        
+
         print(getMovieName(movieNames, similarMovieID) + "\tscore: " \
               + str(result.score) + "\tstrength: " + str(result.numPairs))
-        
+
 spark.stop()

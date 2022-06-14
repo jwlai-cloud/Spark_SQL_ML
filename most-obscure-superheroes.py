@@ -25,7 +25,10 @@ minConnections = connections.filter(func.col("connections") == minConnectionCoun
 
 minConnectionsWithNames = minConnections.join(names, "id")
 
-print("The following characters have only " + str(minConnectionCount) + " connection(s):")
+print(
+    f"The following characters have only {str(minConnectionCount)} connection(s):"
+)
+
 
 minConnectionsWithNames.select("name").show()
 

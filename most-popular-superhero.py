@@ -24,5 +24,12 @@ mostPopular = flipped.max()
 
 mostPopularName = namesRdd.lookup(mostPopular[1])[0]
 
-print(str(mostPopularName) + " is the most popular superhero, with " + \
-    str(mostPopular[0]) + " co-appearances.")
+print(
+    (
+        (
+            f"{str(mostPopularName)} is the most popular superhero, with "
+            + str(mostPopular[0])
+        )
+        + " co-appearances."
+    )
+)

@@ -18,11 +18,14 @@ lines = spark.read.text("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/datase
 connections = lines.withColumn("id", func.split(func.trim(func.col("value")), " ")[0]) \
     .withColumn("connections", func.size(func.split(func.trim(func.col("value")), " ")) - 1) \
     .groupBy("id").agg(func.sum("connections").alias("connections"))
-    
+
 mostPopular = connections.sort(func.col("connections").desc()).first()
 
 mostPopularName = names.filter(func.col("id") == mostPopular[0]).select("name").first()
 
-print(mostPopularName[0] + " is the most popular superhero with " + str(mostPopular[1]) + " co-appearances.")
+print(
+    f"{mostPopularName[0]} is the most popular superhero with {str(mostPopular[1])} co-appearances."
+)
+
 
 spark.stop()

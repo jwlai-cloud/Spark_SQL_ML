@@ -15,10 +15,7 @@ hitCounter = sc.accumulator(0)
 def convertToBFS(line):
     fields = line.split()
     heroID = int(fields[0])
-    connections = []
-    for connection in fields[1:]:
-        connections.append(int(connection))
-
+    connections = [int(connection) for connection in fields[1:]]
     color = 'WHITE'
     distance = 9999
 
@@ -45,12 +42,12 @@ def bfsMap(node):
 
     #If this node needs to be expanded...
     if (color == 'GRAY'):
+        newColor = 'GRAY'
         for connection in connections:
             newCharacterID = connection
             # distance is based on master node + 1
             newDistance = distance + 1
-            newColor = 'GRAY'
-            if (targetCharacterID == connection):
+            if targetCharacterID == newCharacterID:
                 hitCounter.add(1)
 
             newEntry = (newCharacterID, ([], newDistance, newColor))
@@ -90,13 +87,13 @@ def bfsReduce(data1, data2):
         distance = distance2
 
     # Preserve darkest color
-    if (color1 == 'WHITE' and (color2 == 'GRAY' or color2 == 'BLACK')):
+    if color1 == 'WHITE' and color2 in ['GRAY', 'BLACK']:
         color = color2
 
     if (color1 == 'GRAY' and color2 == 'BLACK'):
         color = color2
 
-    if (color2 == 'WHITE' and (color1 == 'GRAY' or color1 == 'BLACK')):
+    if color2 == 'WHITE' and color1 in ['GRAY', 'BLACK']:
         color = color1
 
     if (color2 == 'GRAY' and color1 == 'BLACK'):
@@ -108,8 +105,8 @@ def bfsReduce(data1, data2):
 #Main program here:
 iterationRdd = createStartingRdd()
 
-for iteration in range(0, 10):
-    print("Running BFS iteration# " + str(iteration+1))
+for iteration in range(10):
+    print(f"Running BFS iteration# {str(iteration+1)}")
 
     # Create new vertices as needed to darken or reduce distances in the
     # reduce stage. If we encounter the node we're looking for as a GRAY
@@ -118,11 +115,16 @@ for iteration in range(0, 10):
 
     # Note that mapped.count() action here forces the RDD to be evaluated, and
     # that's the only reason our accumulator is actually updated.
-    print("Processing " + str(mapped.count()) + " values.")
+    print(f"Processing {str(mapped.count())} values.")
 
     if (hitCounter.value > 0):
-        print("Hit the target character! From " + str(hitCounter.value) \
-            + " different direction(s).")
+        print(
+            (
+                f"Hit the target character! From {str(hitCounter.value)}"
+                + " different direction(s)."
+            )
+        )
+
         break
 
     # Reducer combines data for each character ID, preserving the darkest
