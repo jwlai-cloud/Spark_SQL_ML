@@ -15,23 +15,23 @@ def loadMovieNames():
 
 
 spark = SparkSession.builder.appName("ALSExample").getOrCreate()
-    
+
 moviesSchema = StructType([ \
                      StructField("userID", IntegerType(), True), \
                      StructField("movieID", IntegerType(), True), \
                      StructField("rating", IntegerType(), True), \
                      StructField("timestamp", LongType(), True)])
-    
+
 names = loadMovieNames()
-    
+
 ratings = spark.read.option("sep", "\t").schema(moviesSchema) \
     .csv("file:///Users/sdljw/PycharmProjects/Spark_SQL_ML/ml-100k/u.data")
-    
+
 print("Training recommendation model...")
 
 als = ALS().setMaxIter(5).setRegParam(0.01).setUserCol("userID").setItemCol("movieID") \
     .setRatingCol("rating")
-    
+
 model = als.fit(ratings)
 
 # Manually construct a dataframe of the user ID's we want recs for
@@ -42,7 +42,7 @@ users = spark.createDataFrame([[userID,]], userSchema)
 
 recommendations = model.recommendForUserSubset(users, 10).collect()
 
-print("Top 10 recommendations for user ID " + str(userID))
+print(f"Top 10 recommendations for user ID {userID}")
 
 for userRecs in recommendations:
     myRecs = userRecs[1]  #userRecs is (userID, [Row(movieId, rating), Row(movieID, rating)...])
@@ -51,5 +51,5 @@ for userRecs in recommendations:
         rating = rec[1]
         movieName = names[movie]
         print(movieName + str(rating))
-        
+
 spark.stop()

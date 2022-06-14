@@ -18,6 +18,5 @@ results = wordCountsSorted.collect()
 
 for result in results:
     count = str(result[0])
-    word = result[1].encode('ascii', 'ignore')
-    if word:
+    if word := result[1].encode('ascii', 'ignore'):
         print(word.decode() + ":\t\t" + count)

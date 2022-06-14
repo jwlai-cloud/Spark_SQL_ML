@@ -34,12 +34,10 @@ def computeCosineSimilarity(ratingPairs):
         numPairs += 1
 
     numerator = sum_xy
-    denominator = sqrt(sum_xx) * sqrt(sum_yy)
-
-    score = 0
-    if (denominator):
+    if denominator := sqrt(sum_xx) * sqrt(sum_yy):
         score = (numerator / (float(denominator)))
-
+    else:
+        score = 0
     return (score, numPairs)
 
 
@@ -95,7 +93,7 @@ if (len(sys.argv) > 1):
     # Sort by quality score.
     results = filteredResults.map(lambda pairSim: (pairSim[1], pairSim[0])).sortByKey(ascending = False).take(10)
 
-    print("Top 10 similar movies for " + nameDict[movieID])
+    print(f"Top 10 similar movies for {nameDict[movieID]}")
     for result in results:
         (sim, pair) = result
         # Display the similarity result that isn't the movie we're looking at
